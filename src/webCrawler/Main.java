@@ -71,6 +71,7 @@ public class Main {
 		System.out.println("To crawl the web, press 1");
 		System.out.println("To empty the tables in the database, press 2");
 		System.out.println("To search the database, press 3");
+		System.out.println("To execute a custom SQL query, press 4");
 		
 		Scanner sc = new Scanner(System.in);
 		int input = sc.nextInt();
@@ -81,11 +82,12 @@ public class Main {
 					 
 			case 2:  System.out.println("You Pressed 2");
 					 System.out.println("WARNING: You are about to delete all of the entries in all of the tables");
-					 System.out.println("Are you sure you want to continue? (y/n)");
+					 System.out.println("Are you sure you want to continue? (1 for yes; 2 for no)");
 					 int confirmation = sc.nextInt();
-					 if (confirmation == 'y'){
+					 if (confirmation == 1){
 						 deleteTableContents();
-					 } else{
+						 return;
+					 } else {
 						 return;
 					 }
 
@@ -95,19 +97,39 @@ public class Main {
 					 * misspells the word.  It will also allow for similar words to be displayed in the results 
 					 */
 			 		 return;
+			 		 
+			case 4:  System.out.println("You Pressed 4");
+					 customSQLQuery();
 			 
 			default: System.out.println("You Pressed the wrong key");
 		}
 	}
 	
-	private static void deleteTableContents() {
-		/* TODO Build out this method to perform the following SQL Query:
-		 * 
-		 * DELETE FROM table1;
-		 * DELETE FROM file;
-		 * DELETE FROM list;
+	private static void customSQLQuery() {
+
+		/* TODO Build out this method
+		 * This method will implement code very similar to the other methods seen in this program
+		 * 1) Use a scanner or console.read to grab a string value of the user's query
+		 * 2) Query the database with the string
+		 * 3) Print results to console
 		 */
 		return;
+	}
+
+	private static void deleteTableContents() {
+		try {
+			Class.forName(driver).newInstance();
+			Connection conn = DriverManager.getConnection(url+dbName,userName,password);
+			Statement st = conn.createStatement();
+			st.executeUpdate("DELETE FROM table1;");
+			st.executeUpdate("DELETE FROM file;");
+			st.executeUpdate("DELETE FROM list;");
+			
+			conn.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		System.out.println("Table entries successfully deleted");
 	}
 
 	public static void crawler(String nextURL, String firstParagraph) {
