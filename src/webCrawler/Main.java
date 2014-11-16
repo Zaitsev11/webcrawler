@@ -38,18 +38,25 @@ public class Main {
 	 * 
 	 */
 	
-	
-	
-	
+	//How many pages would you like to grab the first paragraph from?
 	private static final int numOfPagesWithParagraph = 5;
+	
+	//This is a placeholder for the paragraph field in the database
 	private static String firstParagraph = "initialCrawl";
-	//Starting point for the webcrawl.
+	
+	//This is the starting point for the webcrawl
 	static String nextURL = "http://en.wikipedia.org/wiki/List_of_alcoholic_beverages";
+	
+	//Start the webcrawl on the first page
 	static boolean firstPage = true;
+	
+	//Used for determining how long the crawler has been working
 	static long ms = System.currentTimeMillis();
+	
 	//Set the number of Pages to Crawl here:
 	static int numPagesToCrawl = 2;
 	
+	//mySQL database information; don't forget to start the database :)
 	static String url = "jdbc:mysql://localhost:8889/";
 	static String dbName = "database";
 	static String driver = "com.mysql.jdbc.Driver";
@@ -57,35 +64,52 @@ public class Main {
 	static String password = "root";
 	
 	
-	
 	public static void main(String[] args) {
-		// TODO After every page parsed, remove duplicate entries in the SQL database
 		// TODO, Make this perform ALL SQL queries we want, including customer queries.
 		
-		
-		//getFirstParagraph(nextURL);
 		System.out.println("What would you like to do?");
 		System.out.println("To crawl the web, press 1");
-		System.out.println("To delete the database, press 2");
-		//System.out.println("To write a custom SQL query, press 3");
-		//System.out.println("To see how many results are in the database, press 4");
-		
+		System.out.println("To empty the tables in the database, press 2");
+		System.out.println("To search the database, press 3");
 		
 		Scanner sc = new Scanner(System.in);
 		int input = sc.nextInt();
 		
 		switch (input) {
-			case 1:  System.out.println("You Pressed 1");
-					 System.out.println("Parsing: " + nextURL);
+			case 1:  System.out.println("Parsing: " + nextURL);
 					 crawler(nextURL, firstParagraph);
 					 
 			case 2:  System.out.println("You Pressed 2");
-					 return;
-					 
+					 System.out.println("WARNING: You are about to delete all of the entries in all of the tables");
+					 System.out.println("Are you sure you want to continue? (y/n)");
+					 int confirmation = sc.nextInt();
+					 if (confirmation == 'y'){
+						 deleteTableContents();
+					 } else{
+						 return;
+					 }
+
+			case 3:  System.out.println("You Pressed 3");
+					/* Implement the database search
+					 * The search will consist of a dictionary API which will allow for results to appear if the user
+					 * misspells the word.  It will also allow for similar words to be displayed in the results 
+					 */
+			 		 return;
+			 
 			default: System.out.println("You Pressed the wrong key");
 		}
 	}
 	
+	private static void deleteTableContents() {
+		/* TODO Build out this method to perform the following SQL Query:
+		 * 
+		 * DELETE FROM table1;
+		 * DELETE FROM file;
+		 * DELETE FROM list;
+		 */
+		return;
+	}
+
 	public static void crawler(String nextURL, String firstParagraph) {
 		URL url;
 	    InputStream is = null;
@@ -96,25 +120,26 @@ public class Main {
 	        is = url.openStream();  // throws an IOException
 	        br = new BufferedReader(new InputStreamReader(is));
 	        while ((line = br.readLine()) != null) {
-	            
-	        	//view-source:http://en.wikipedia.org/wiki/List_of_alcoholic_beverages
-	        		        	
+	        	/*
+	        	 * In Wikipedia, the links don't include the domain name.  The following is an example
+	        	 * of HTML used in Wikipedia:
+	        	 * <a href="/wiki/Bourbon_whiskey" title="Bourbon whiskey">
+	        	 */
+
 	        	Pattern pattern = Pattern.compile("<a href=\"/wiki/(.+?)\"");
-	        	//Pattern pattern = Pattern.compile("<a href=\"http:(.+?)\"");
 	        	Matcher matcher = pattern.matcher(line);
 	        	
 	        	while(matcher.find()){
-	        		//String theURL = "http:" + matcher.group(1);
 	        		String theURL = "http://en.wikipedia.org/wiki/" + matcher.group(1);
 	        		String theName = matcher.group(1);
 	        		//Default table is table1, where the entries go
 	        		String table = "table1";
-	        		//TODO Need to decode theName from HTML char to ASCII before passing to method insert();
-	        		//TODO Remove the underscore character from theName "_"
+	        			        		
+	        		//TODO decode from HTML to ASCII and remove underscores
+	        		theName = decodeHTML(theName);
+	        		
 	        		//TODO If theName contains ".jpg", then push it to table2 and new method insertTable2();
-	        		//TODO Figure out what to do if theName contains "List_of"
-	        		//TODO Figure out what to do if theName contains "Category"
-	        		//TODO Figure out what to do if theName contains "File"
+	        		
 	        		//New line of code, testing Git
 	        		if (theName.contains("File")){
 	        			table = "file";
@@ -125,9 +150,6 @@ public class Main {
 	        		
 	        		insert(theURL, theName, table, firstParagraph);
 	        	}
-	        	//System.out.println(matcher.group(1));
-	        	
-	        	
 	        }
 	    } catch (MalformedURLException mue) {
 	         mue.printStackTrace();
@@ -137,17 +159,25 @@ public class Main {
 	        try {
 	            if (is != null) is.close();
 	        } catch (IOException ioe) {
-	            // nothing to see here
+
 	        }
 	    }
 	    if (firstPage){
-	    	//return;
 	    	long time = System.currentTimeMillis() - ms;
 			System.out.println("Parsed in "+time+" ms");
 	    	nextPage();
 	    }
 	}
 	
+	private static String decodeHTML(String theName) {
+		//TODO Decode from HTML to ASCII
+		
+		char underscore = '_';
+		char space = ' ';
+		theName = theName.replace(underscore, space);
+		return theName;
+	}
+
 	//Insert the URL into the database
 	public static void insert(String theURL, String theName, String table, String firstParagraph) {
 
@@ -162,13 +192,10 @@ public class Main {
 			} catch (SQLException e){
 				
 			}
-				
-			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
-	
 	
 	//Called after a webpage is parsed
 	public static void nextPage(){
@@ -179,7 +206,6 @@ public class Main {
 		String numFields = "0";
 		
 		//x accounts for the crawl URL number
-		
 		for(int x = 0; x < numPagesToCrawl; x++){
 			try {
 				Class.forName(driver).newInstance();
@@ -188,7 +214,6 @@ public class Main {
 				ResultSet res = st.executeQuery("SELECT DISTINCT URL FROM table1 LIMIT "+x+",1");
 				
 				while (res.next()) {
-					//Add to ArrayList al
 					al.add(res.getString("URL"));
 				}
 				conn.close();
@@ -216,12 +241,14 @@ public class Main {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-			
-			//SELECT COUNT(URL) FROM table1;
-			
 		}
 		
 	}
+	
+	// TODO This method is not yet finished, needs testing
+	/* It needs to grab the xTh result from the table then grab the 1st paragraph of the URL
+	 * 
+	 */
 	
 	public static void getFirstParagraph(String nextURL) {
 		ArrayList<String> al = new ArrayList<String>();
@@ -233,13 +260,7 @@ public class Main {
 	        url = new URL(nextURL);
 	        is = url.openStream();  // throws an IOException
 	        br = new BufferedReader(new InputStreamReader(is));
-	        while ((line = br.readLine()) != null) {	        	
-	        	//view-source:http://en.wikipedia.org/wiki/List_of_alcoholic_beverages
-	        	
-	        	// TODO I need to finish this method
-	        	/* It needs to grab the xTh result from the table then grab the 1st paragraph of the URL
-	        	 * 
-	        	 */
+	        while ((line = br.readLine()) != null) {
 	        	for(int x = 0; x < numOfPagesWithParagraph; x++){
 		        	try {
 						Class.forName(driver).newInstance();
@@ -257,14 +278,16 @@ public class Main {
 					}
 	        	}
 	        	
+	        	/*
+	        	 *  TODO We're looking for the first paragraph, as a result we'll be searching for the first
+	        	 *  iteration of the <p> paragraph tags
+	        	 */
+	        	
 	        	Pattern pattern = Pattern.compile("<p>(.+?)</p>");
-	        	//Pattern pattern = Pattern.compile("<a href=\"http:(.+?)\"");
 	        	Matcher matcher = pattern.matcher(line);
 	        	
 	        	while(matcher.find()){
-	        		
 	        		String firstParagraph = matcher.group(1);
-	        		
 	        		update(nextURL, firstParagraph);
 	        	}	        	
 	        }
@@ -276,7 +299,7 @@ public class Main {
 	        try {
 	            if (is != null) is.close();
 	        } catch (IOException ioe) {
-	            // nothing to see here
+	        	
 	        }
 	    }
 	}
@@ -295,5 +318,4 @@ public class Main {
 		}
 		System.out.println("Record Updated Successfully");
 	}
-	
 }
