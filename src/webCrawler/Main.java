@@ -115,6 +115,7 @@ public class Main {
 	        		//TODO Figure out what to do if theName contains "List_of"
 	        		//TODO Figure out what to do if theName contains "Category"
 	        		//TODO Figure out what to do if theName contains "File"
+	        		//New line of code, testing Git
 	        		if (theName.contains("File")){
 	        			table = "file";
 	        		}
