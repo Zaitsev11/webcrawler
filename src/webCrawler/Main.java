@@ -107,6 +107,11 @@ public class Main {
 			
 			case 5:  getFirstParagraph();
 					 return;
+					 
+			case 6:  //Testing code
+					 String theName = "http://en.wikipedia.org/wiki/Sh%C5%8Dch%C5%AB#Barley_sh.C5.8Dch.C5.AB";
+					 System.out.println(decodeHTML(theName));
+					 return;
 			 
 			default: System.out.println("You Pressed the wrong key");
 					 return;
@@ -199,11 +204,10 @@ public class Main {
 	}
 	
 	private static String decodeHTML(String theName) {
-		//TODO There is a bug in this method.  It is not decoding correctly.  This is a medium priority
+		// TODO This is decoding correctly when outputting to System.out, however it does not update the mySQL database correctly
 		
 		try {
-			//TODO the issue most likely lies with the type of decoding as seen below
-			theName = URLDecoder.decode(theName ,"ISO-8859-1");
+			theName = URLDecoder.decode(theName ,"UTF-8");
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
