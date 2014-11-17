@@ -67,7 +67,6 @@ public class Main {
 	
 	
 	public static void main(String[] args) {
-		// TODO, Make this perform ALL SQL queries we want, including customer queries.
 		
 		System.out.println("What would you like to do?");
 		System.out.println("To crawl the web, press 1");
@@ -166,12 +165,11 @@ public class Main {
 	        		//Default table is table1, where the entries go
 	        		String table = "table1";
 	        		
-	        		//The following decodes the
+	        		//The following decodes theName
 	        		theName = decodeHTML(theName);
 	        		
 	        		//TODO If theName contains ".jpg", then push it to table2 and new method insertTable2();
 	        		
-	        		//New line of code, testing Git
 	        		if (theName.contains("File")){
 	        			table = "file";
 	        		}
@@ -282,22 +280,9 @@ public class Main {
 		}
 		
 	}
-	
-	// TODO This method is not yet finished, needs testing
-	/* It needs to grab the xTh result from the table then grab the 1st paragraph of the URL
-	 * 
-	 */
-	
 
 	
-	/* getFirstParagraph()
-	 * 1) Select the first distinct URL from the table
-	 * 2) Find the 1st paragraph in the web page
-	 * 3) Update the table
-	 */
-	
 	public static void getFirstParagraph() {
-		ArrayList<String> al = new ArrayList<String>();
 		URL url2;
 	    InputStream is = null;
 	    BufferedReader br;
@@ -321,8 +306,8 @@ public class Main {
 		        	
 		        }
 		    }
-        	//Now that we have theUrl, let's get the paragraph!
         	
+        	//Now that we have theUrl, let's get the paragraph!
 		    try {
 		        url2 = new URL(nextURL);
 		        is = url2.openStream();  // throws an IOException
@@ -340,7 +325,7 @@ public class Main {
 		        		//TODO Remove the excess formatting in the results (e.g. - <b>)
 		        		firstParagraph = removeHTMLFormatting(firstParagraph);
 		        		
-		        		//TODO uncomment the next line in order to save to the database
+		        		//TODO Uncomment the next line in order to save to the database
 		        		//update(nextURL, firstParagraph);
 		        		break;
 		        	}
@@ -349,12 +334,10 @@ public class Main {
 		        } 
 		    }
 
-	    } catch (MalformedURLException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+	    } catch (MalformedURLException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
 		} finally {
 	        try {
 	            if (is != null) is.close();
@@ -362,13 +345,6 @@ public class Main {
 	        	
 	        }
 	    }
-	        
-	        	
-	        	/*
-	        	 *  TODO We're looking for the first paragraph, as a result we'll be searching for the first
-	        	 *  iteration of the <p> paragraph tags
-	        	 */
-        	
 	    }
 	}
 
@@ -376,7 +352,7 @@ public class Main {
 	
 	
 	
-	private static String removeHTMLFormatting(String firstParagraph2) {
+	private static String removeHTMLFormatting(String firstParagraph) {
 		// TODO Build out this method
 		
 		return null;
