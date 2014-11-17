@@ -41,7 +41,7 @@ public class Main {
 	 */
 	
 	//How many pages would you like to grab the first paragraph from?
-	private static final int numOfPagesWithParagraph = 0;
+	private static final int numOfPagesWithParagraph = 2;
 	
 	//This is a placeholder for the paragraph field in the database
 	private static String firstParagraph = "initialCrawl";
@@ -74,6 +74,7 @@ public class Main {
 		System.out.println("To empty the tables in the database, press 2");
 		System.out.println("To search the database, press 3");
 		System.out.println("To execute a custom SQL query, press 4");
+		System.out.println("To get the first paragraph, press 5");
 		
 		Scanner sc = new Scanner(System.in);
 		int input = sc.nextInt();
@@ -103,6 +104,9 @@ public class Main {
 			 		 
 			case 4:  System.out.println("You Pressed 4");
 					 customSQLQuery();
+					 return;
+			
+			case 5:  getFirstParagraph();
 					 return;
 			 
 			default: System.out.println("You Pressed the wrong key");
@@ -284,60 +288,98 @@ public class Main {
 	 * 
 	 */
 	
+
 	
+	/* getFirstParagraph()
+	 * 1) Select the first distinct URL from the table
+	 * 2) Find the 1st paragraph in the web page
+	 * 3) Update the table
+	 */
 	
-	public static void getFirstParagraph(String nextURL) {
+	public static void getFirstParagraph() {
 		ArrayList<String> al = new ArrayList<String>();
-		URL url;
+		URL url2;
 	    InputStream is = null;
 	    BufferedReader br;
 	    String line;
-	    try {
-	        url = new URL(nextURL);
-	        is = url.openStream();  // throws an IOException
-	        br = new BufferedReader(new InputStreamReader(is));
-	        while ((line = br.readLine()) != null) {
-	        	for(int x = 0; x < numOfPagesWithParagraph; x++){
-		        	try {
-						Class.forName(driver).newInstance();
-						Connection conn = DriverManager.getConnection(url+dbName,userName,password);
-						Statement st = conn.createStatement();
-						ResultSet res = st.executeQuery("SELECT DISTINCT URL FROM table1 LIMIT "+x+",1");
-						
-						while (res.next()) {
-							//Add to ArrayList al
-							al.add(res.getString("URL"));
-						}
-						conn.close();
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-	        	}
-	        	
-	        	/*
-	        	 *  TODO We're looking for the first paragraph, as a result we'll be searching for the first
-	        	 *  iteration of the <p> paragraph tags
-	        	 */
-	        	
-	        	Pattern pattern = Pattern.compile("<p>(.+?)</p>");
-	        	Matcher matcher = pattern.matcher(line);
-	        	
-	        	while(matcher.find()){
-	        		String firstParagraph = matcher.group(1);
-	        		update(nextURL, firstParagraph);
-	        	}	        	
-	        }
-	    } catch (MalformedURLException mue) {
-	         mue.printStackTrace();
-	    } catch (IOException ioe) {
-	         ioe.printStackTrace();
-	    } finally {
+	    for(int x = 0; x < numOfPagesWithParagraph; x++){	        
+        	try {
+				Class.forName(driver).newInstance();
+				Connection conn = DriverManager.getConnection(url+dbName,userName,password);
+				Statement st = conn.createStatement();
+				ResultSet res = st.executeQuery("SELECT DISTINCT URL FROM table1 LIMIT "+x+",1");
+				res.next();
+				nextURL = res.getString("URL");
+				System.out.println("The URL: " + nextURL);
+				conn.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+			} finally {
+		        try {
+		            if (is != null) is.close();
+		        } catch (IOException ioe) {
+		        	
+		        }
+		    }
+        	//Now that we have theUrl, let's get the paragraph!
+        	
+		    try {
+		        url2 = new URL(nextURL);
+		        is = url2.openStream();  // throws an IOException
+		        br = new BufferedReader(new InputStreamReader(is));  	
+		    while ((line = br.readLine()) != null) {
+		    	
+		        try {
+			        Pattern pattern = Pattern.compile("<p>(.+?)</p>");
+		        	Matcher matcher = pattern.matcher(line);
+		        	
+		        	if(matcher.find()){
+		        		String firstParagraph = matcher.group(1);
+		        		System.out.println("The first paragraph: " + firstParagraph);
+		        		
+		        		//TODO Remove the excess formatting in the results (e.g. - <b>)
+		        		firstParagraph = removeHTMLFormatting(firstParagraph);
+		        		
+		        		//TODO uncomment the next line in order to save to the database
+		        		//update(nextURL, firstParagraph);
+		        		break;
+		        	}
+		        	
+		        } catch(Exception e){
+		        } 
+		    }
+
+	    } catch (MalformedURLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} finally {
 	        try {
 	            if (is != null) is.close();
 	        } catch (IOException ioe) {
 	        	
 	        }
 	    }
+	        
+	        	
+	        	/*
+	        	 *  TODO We're looking for the first paragraph, as a result we'll be searching for the first
+	        	 *  iteration of the <p> paragraph tags
+	        	 */
+        	
+	    }
+	}
+
+
+	
+	
+	
+	private static String removeHTMLFormatting(String firstParagraph2) {
+		// TODO Build out this method
+		
+		return null;
 	}
 
 	private static void update(String nextURL, String firstParagraph) {
