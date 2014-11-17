@@ -12,9 +12,9 @@ A basic webcrawler with a search engine built in
 	 * 2) Add the first paragraph of each entry into the database
 	 * 3) Query the database for related terms and group similar alcoholic beverages together (e.g. - if 'Coors light' and 'Budweiser'
 	 * 	Wikipedia articles both have the word 'beer' in it, then they are similar.
-	 * 4) 
 	 * 
-	 * TLDR; This program is a search engine specifically for alcoholic beverages.
+	 * 
+	 * TLDR; This program is a search engine specifically for alcoholic beverages in Wikipedia.
 	 * 
 	 * The purpose of writing this program is to increase my knowledge and skills in programming in relation to 'big data' and how to handle the data.
 	 * This program will be scalable in form.

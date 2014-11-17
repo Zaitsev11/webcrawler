@@ -4,8 +4,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -27,9 +29,9 @@ public class Main {
 	 * 2) Add the first paragraph of each entry into the database
 	 * 3) Query the database for related terms and group similar alcoholic beverages together (e.g. - if 'Coors light' and 'Budweiser'
 	 * 	Wikipedia articles both have the word 'beer' in it, then they are similar.
-	 * 4) 
 	 * 
-	 * TLDR; This program is a search engine specifically for alcoholic beverages.
+	 * 
+	 * TLDR; This program is a search engine specifically for alcoholic beverages in Wikipedia.
 	 * 
 	 * The purpose of writing this program is to increase my knowledge and skills in programming in relation to 'big data' and how to handle the data.
 	 * This program will be scalable in form.
@@ -39,7 +41,7 @@ public class Main {
 	 */
 	
 	//How many pages would you like to grab the first paragraph from?
-	private static final int numOfPagesWithParagraph = 5;
+	private static final int numOfPagesWithParagraph = 0;
 	
 	//This is a placeholder for the paragraph field in the database
 	private static String firstParagraph = "initialCrawl";
@@ -54,7 +56,7 @@ public class Main {
 	static long ms = System.currentTimeMillis();
 	
 	//Set the number of Pages to Crawl here:
-	static int numPagesToCrawl = 2;
+	static int numPagesToCrawl = 1;
 	
 	//mySQL database information; don't forget to start the database :)
 	static String url = "jdbc:mysql://localhost:8889/";
@@ -79,6 +81,7 @@ public class Main {
 		switch (input) {
 			case 1:  System.out.println("Parsing: " + nextURL);
 					 crawler(nextURL, firstParagraph);
+					 return;
 					 
 			case 2:  System.out.println("You Pressed 2");
 					 System.out.println("WARNING: You are about to delete all of the entries in all of the tables");
@@ -100,14 +103,16 @@ public class Main {
 			 		 
 			case 4:  System.out.println("You Pressed 4");
 					 customSQLQuery();
+					 return;
 			 
 			default: System.out.println("You Pressed the wrong key");
+					 return;
 		}
 	}
 	
 	private static void customSQLQuery() {
 
-		/* TODO Build out this method
+		/* TODO Build out this method LOW priority
 		 * This method will implement code very similar to the other methods seen in this program
 		 * 1) Use a scanner or console.read to grab a string value of the user's query
 		 * 2) Query the database with the string
@@ -156,8 +161,8 @@ public class Main {
 	        		String theName = matcher.group(1);
 	        		//Default table is table1, where the entries go
 	        		String table = "table1";
-	        			        		
-	        		//TODO decode from HTML to ASCII and remove underscores
+	        		
+	        		//The following decodes the
 	        		theName = decodeHTML(theName);
 	        		
 	        		//TODO If theName contains ".jpg", then push it to table2 and new method insertTable2();
@@ -192,7 +197,14 @@ public class Main {
 	}
 	
 	private static String decodeHTML(String theName) {
-		//TODO Decode from HTML to ASCII
+		//TODO There is a bug in this method.  It is not decoding correctly.  This is a medium priority
+		
+		try {
+			//TODO the issue most likely lies with the type of decoding as seen below
+			theName = URLDecoder.decode(theName ,"ISO-8859-1");
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
 		
 		char underscore = '_';
 		char space = ' ';
@@ -271,6 +283,8 @@ public class Main {
 	/* It needs to grab the xTh result from the table then grab the 1st paragraph of the URL
 	 * 
 	 */
+	
+	
 	
 	public static void getFirstParagraph(String nextURL) {
 		ArrayList<String> al = new ArrayList<String>();
