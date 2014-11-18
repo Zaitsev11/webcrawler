@@ -21,27 +21,11 @@ import java.util.regex.Pattern;
 public class Main {
 	
 	/**
-	 * Hello and Welcome.
-	 * 
-	 * This project is a basic web crawler which outputs to a mySQL database.
-	 * The purpose of this program is to perform the following:
-	 * 1) Parse Wikipedia for a list of alcoholic beverages
-	 * 2) Add the first paragraph of each entry into the database
-	 * 3) Query the database for related terms and group similar alcoholic beverages together (e.g. - if 'Coors light' and 'Budweiser'
-	 * 	Wikipedia articles both have the word 'beer' in it, then they are similar.
-	 * 
-	 * 
-	 * TLDR; This program is a search engine specifically for alcoholic beverages in Wikipedia.
-	 * 
-	 * The purpose of writing this program is to increase my knowledge and skills in programming in relation to 'big data' and how to handle the data.
-	 * This program will be scalable in form.
-	 * 
-	 * Enjoy!
-	 * 
+	 * Please read the README for information on this project.
 	 */
 	
 	//How many pages would you like to grab the first paragraph from?
-	private static final int numOfPagesWithParagraph = 2;
+	private static final int numOfPagesWithParagraph = 3800;
 	
 	//This is a placeholder for the paragraph field in the database
 	private static String firstParagraph = "initialCrawl";
@@ -72,8 +56,8 @@ public class Main {
 		System.out.println("To crawl the web, press 1");
 		System.out.println("To empty the tables in the database, press 2");
 		System.out.println("To search the database, press 3");
-		System.out.println("To execute a custom SQL query, press 4");
-		System.out.println("To get the first paragraph, press 5");
+		System.out.println("To get the first paragraph, press 4");
+		System.out.println("TO RUN THE TEST, press 5");
 		
 		Scanner sc = new Scanner(System.in);
 		int input = sc.nextInt();
@@ -100,33 +84,21 @@ public class Main {
 					 * misspells the word.  It will also allow for similar words to be displayed in the results 
 					 */
 			 		 return;
-			 		 
-			case 4:  System.out.println("You Pressed 4");
-					 customSQLQuery();
-					 return;
 			
-			case 5:  getFirstParagraph();
+			case 4:  getFirstParagraph();
 					 return;
 					 
-			case 6:  //Testing code
-					 String theName = "http://en.wikipedia.org/wiki/Sh%C5%8Dch%C5%AB#Barley_sh.C5.8Dch.C5.AB";
-					 System.out.println(decodeHTML(theName));
+			case 5:  //Testing code
+					 /* TODO
+					  * I need to remove any text that is between "<" and ">"
+					  */
+					 String testString = "<b>Shōchū</b> <span style=\"font-weight: normal\">";
+					 System.out.println(removeHTMLFormatting(testString));
 					 return;
 			 
 			default: System.out.println("You Pressed the wrong key");
 					 return;
 		}
-	}
-	
-	private static void customSQLQuery() {
-
-		/* TODO Build out this method LOW priority
-		 * This method will implement code very similar to the other methods seen in this program
-		 * 1) Use a scanner or console.read to grab a string value of the user's query
-		 * 2) Query the database with the string
-		 * 3) Print results to console
-		 */
-		return;
 	}
 
 	private static void deleteTableContents() {
@@ -137,7 +109,6 @@ public class Main {
 			st.executeUpdate("DELETE FROM table1;");
 			st.executeUpdate("DELETE FROM file;");
 			st.executeUpdate("DELETE FROM list;");
-			
 			conn.close();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -178,7 +149,7 @@ public class Main {
 	        		if (theName.contains("File")){
 	        			table = "file";
 	        		}
-	        		if (theName.contains("List_of")){
+	        		if (theName.contains("List of")){
 	        			table = "list";
 	        		}
 	        		
@@ -204,14 +175,12 @@ public class Main {
 	}
 	
 	private static String decodeHTML(String theName) {
-		// TODO This is decoding correctly when outputting to System.out, however it does not update the mySQL database correctly
-		
+		// TODO This is decoding correctly when outputting to System.out, however it does not update the mySQL database correctly.  Medium priority.
 		try {
 			theName = URLDecoder.decode(theName ,"UTF-8");
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
-		
 		char underscore = '_';
 		char space = ' ';
 		theName = theName.replace(underscore, space);
@@ -284,7 +253,6 @@ public class Main {
 		}
 		
 	}
-
 	
 	public static void getFirstParagraph() {
 		URL url2;
@@ -305,6 +273,7 @@ public class Main {
 				e.printStackTrace();
 			} finally {
 		        try {
+		        	//Change to 'while', instead of 'if' to get more than the first paragraph
 		            if (is != null) is.close();
 		        } catch (IOException ioe) {
 		        	
@@ -325,12 +294,8 @@ public class Main {
 		        	if(matcher.find()){
 		        		String firstParagraph = matcher.group(1);
 		        		System.out.println("The first paragraph: " + firstParagraph);
-		        		
-		        		//TODO Remove the excess formatting in the results (e.g. - <b>)
 		        		firstParagraph = removeHTMLFormatting(firstParagraph);
-		        		
-		        		//TODO Uncomment the next line in order to save to the database
-		        		//update(nextURL, firstParagraph);
+		        		update(nextURL, firstParagraph);
 		        		break;
 		        	}
 		        	
@@ -352,14 +317,9 @@ public class Main {
 	    }
 	}
 
-
-	
-	
-	
 	private static String removeHTMLFormatting(String firstParagraph) {
-		// TODO Build out this method
-		
-		return null;
+		firstParagraph = firstParagraph. replaceAll("\\<.*?>","");
+		return firstParagraph;
 	}
 
 	private static void update(String nextURL, String firstParagraph) {

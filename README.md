@@ -8,16 +8,15 @@ A basic webcrawler with a search engine built in
 	 * 
 	 * This project is a basic web crawler which outputs to a mySQL database.
 	 * The purpose of this program is to perform the following:
-	 * 1) Parse Wikipedia for a list of alcoholic beverages
+	 * 1) Parse Wikipedia for a list of alcoholic beverages / food
 	 * 2) Add the first paragraph of each entry into the database
 	 * 3) Query the database for related terms and group similar alcoholic beverages together (e.g. - if 'Coors light' and 'Budweiser'
 	 * 	Wikipedia articles both have the word 'beer' in it, then they are similar.
 	 * 
 	 * 
-	 * TLDR; This program is a search engine specifically for alcoholic beverages in Wikipedia.
+	 * TLDR; This program is a search engine specifically for alcoholic beverages / food in Wikipedia.
 	 * 
-	 * The purpose of writing this program is to increase my knowledge and skills in programming in relation to 'big data' and how to handle the data.
-	 * This program will be scalable in form.
+	 * This will be the backbone of the palit-up.com project.
 	 * 
 	 * Enjoy!
 	 * 
