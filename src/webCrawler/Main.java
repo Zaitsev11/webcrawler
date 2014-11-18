@@ -83,21 +83,50 @@ public class Main {
 					 * The search will consist of a dictionary API which will allow for results to appear if the user
 					 * misspells the word.  It will also allow for similar words to be displayed in the results 
 					 */
+					 System.out.println("Enter a string to search:");
+					 
+					 //TODO remember that the input is space delimited.  Needs to be fixed.
+					 String searchString = sc.next();
+					 searchDatabase(searchString);
 			 		 return;
 			
 			case 4:  getFirstParagraph();
 					 return;
 					 
 			case 5:  //Testing code
-					 /* TODO
-					  * I need to remove any text that is between "<" and ">"
-					  */
 					 String testString = "<b>Shōchū</b> <span style=\"font-weight: normal\">";
 					 System.out.println(removeHTMLFormatting(testString));
 					 return;
 			 
 			default: System.out.println("You Pressed the wrong key");
 					 return;
+		}
+	}
+
+	private static void searchDatabase(String searchString) {
+		ArrayList<String> al = new ArrayList<String>();
+		try {
+			Class.forName(driver).newInstance();
+			Connection conn = DriverManager.getConnection(url+dbName,userName,password);
+			Statement st = conn.createStatement();
+			ResultSet res = st.executeQuery("SELECT DISTINCT * FROM table1 WHERE firstParagraph LIKE '%"+searchString+"%';");
+
+			while (res.next()) {
+				al.add(res.getString("name"));
+			}
+			conn.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		int x = 0;
+		try{
+			while(al.get(x) != null){
+			String output = al.get(x);
+			System.out.println(output);
+			x++;
+			}
+		} catch (IndexOutOfBoundsException e){
+			System.out.println("Number of results: "+x);
 		}
 	}
 
