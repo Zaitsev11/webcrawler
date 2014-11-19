@@ -94,13 +94,44 @@ public class Main {
 					 return;
 					 
 			case 5:  //Testing code
-					 String testString = "<b>Shōchū</b> <span style=\"font-weight: normal\">";
-					 System.out.println(removeHTMLFormatting(testString));
+					 nextURL = "MYURL";
+					 firstParagraph = "shōchū";
+			String theURL = "theURL";
+			String theName = "theName";
+			String table = "table";
+			//update(nextURL, firstParagraph);
+					 insert(theURL, theName, table, firstParagraph);
 					 return;
 			 
+			case 6:  getTaste();		 
+					 
 			default: System.out.println("You Pressed the wrong key");
 					 return;
 		}
+	}
+
+	private static void getTaste() {
+		// TODO Build out this method
+		/* This method will be updating the database and giving value to different fields depending on the words they use
+		 * I probably want the word to read from a list in a different table on the mySQL database
+		 */
+		
+		String word = "bitter";
+		String tasteType = "bitterness";
+		try {
+			Class.forName(driver).newInstance();
+			Connection conn = DriverManager.getConnection(url+dbName,userName,password);
+			Statement st = conn.createStatement();
+			//TODO the issue seems to lie with the following line of code
+			int val = st.executeUpdate("UPDATE table1 SET "+tasteType+"="+tasteType+"+1 WHERE firstParagraph LIKE '%"+word+"%'");
+			if(val==1)
+			conn.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		System.out.println("Record Updated Successfully");
+		
+		
 	}
 
 	private static void searchDatabase(String searchString) {
@@ -224,7 +255,8 @@ public class Main {
 			Connection conn = DriverManager.getConnection(url+dbName,userName,password);
 			Statement st = conn.createStatement();
 			try{
-				int val = st.executeUpdate("INSERT into "+ table +" VALUES('"+ theURL +"','"+ theName +"','"+firstParagraph+"')");
+				//TODO test this
+				int val = st.executeUpdate("INSERT into "+ table +" VALUES('"+ theURL +"','"+ theName +"','"+firstParagraph+"','0','0','0','0','0')");
 				if(val==1)
 					conn.close();
 			} catch (SQLException e){
@@ -320,10 +352,11 @@ public class Main {
 			        Pattern pattern = Pattern.compile("<p>(.+?)</p>");
 		        	Matcher matcher = pattern.matcher(line);
 		        	
+		        	//TODO check this code for possible decode/SQL issues.  Reference GIT bug for more info
 		        	if(matcher.find()){
 		        		String firstParagraph = matcher.group(1);
-		        		System.out.println("The first paragraph: " + firstParagraph);
 		        		firstParagraph = removeHTMLFormatting(firstParagraph);
+		        		System.out.println("The first paragraph: " + firstParagraph);
 		        		update(nextURL, firstParagraph);
 		        		break;
 		        	}
@@ -357,6 +390,7 @@ public class Main {
 			Class.forName(driver).newInstance();
 			Connection conn = DriverManager.getConnection(url+dbName,userName,password);
 			Statement st = conn.createStatement();
+			//TODO the issue seems to lie with the following line of code
 			int val = st.executeUpdate("UPDATE table1 SET firstParagraph='"+firstParagraph+"' WHERE URL='"+nextURL+"'");
 			if(val==1)
 			conn.close();
