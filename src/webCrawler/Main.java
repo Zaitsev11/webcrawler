@@ -114,10 +114,48 @@ public class Main {
 		// TODO Build out this method
 		/* This method will be updating the database and giving value to different fields depending on the words they use
 		 * I probably want the word to read from a list in a different table on the mySQL database
+		 * The list will consist of 
+		 * 
 		 */
+		
+		/* Implement the following SQL query:
+		 * SELECT bitterness FROM words LIMIT 0,1;
+		 * 
+		 * Make this SQL query run for all 5 columns (bitter,sour,sweet, ect.)
+		 * 
+		 * If there's no result returned in a column, go to the next column
+		 */
+		
 		
 		String word = "bitter";
 		String tasteType = "bitterness";
+		
+		//Code to get the word for bitterness
+		
+		ArrayList<String> al = new ArrayList<String>();
+		
+		int x = 0;
+		
+		//This code to build an arraylist of all of the words within the bitterness column
+		try {
+			Class.forName(driver).newInstance();
+			Connection conn = DriverManager.getConnection(url+dbName,userName,password);
+			Statement st = conn.createStatement();
+			ResultSet res = st.executeQuery("SELECT "+tasteType+" FROM words LIMIT "+x+",1");
+			
+			while (res.next()) {
+				al.add(res.getString(tasteType));
+			}
+			conn.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		nextURL = al.get(x);
+		
+		/*
+		 * Build this part out after
+
 		try {
 			Class.forName(driver).newInstance();
 			Connection conn = DriverManager.getConnection(url+dbName,userName,password);
@@ -130,7 +168,7 @@ public class Main {
 			e.printStackTrace();
 		}
 		System.out.println("Record Updated Successfully");
-		
+		*/
 		
 	}
 
