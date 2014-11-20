@@ -103,7 +103,8 @@ public class Main {
 					 insert(theURL, theName, table, firstParagraph);
 					 return;
 			 
-			case 6:  getTaste();		 
+			case 6:  getTaste();	
+					 return;
 					 
 			default: System.out.println("You Pressed the wrong key");
 					 return;
@@ -126,32 +127,50 @@ public class Main {
 		 * If there's no result returned in a column, go to the next column
 		 */
 		
-		
-		String word = "bitter";
 		String tasteType = "bitterness";
 		
 		//Code to get the word for bitterness
 		
 		ArrayList<String> al = new ArrayList<String>();
 		
-		int x = 0;
 		
 		//This code to build an arraylist of all of the words within the bitterness column
-		try {
-			Class.forName(driver).newInstance();
-			Connection conn = DriverManager.getConnection(url+dbName,userName,password);
-			Statement st = conn.createStatement();
-			ResultSet res = st.executeQuery("SELECT "+tasteType+" FROM words LIMIT "+x+",1");
-			
-			while (res.next()) {
-				al.add(res.getString(tasteType));
-			}
-			conn.close();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 		
-		nextURL = al.get(x);
+		/*
+		 * The following code will get the first tasteType.  I need to build it out so that it gets the other types as well.
+		 */
+		
+		for (int x = 0; x < 40; x++){
+			try {
+				Class.forName(driver).newInstance();
+				Connection conn = DriverManager.getConnection(url+dbName,userName,password);
+				Statement st = conn.createStatement();
+				ResultSet res = st.executeQuery("SELECT "+tasteType+" FROM words LIMIT "+x+",1");
+				
+				while (res.next()) {
+					al.add(res.getString(tasteType));
+				}
+				conn.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			try{
+				String test = al.get(x);
+				if (test == ""){
+					//I'm using empty strings in the database
+					System.out.println("End of line");
+					return;
+				}
+				
+				System.out.println(test);
+
+			} catch (IndexOutOfBoundsException e) {
+				//This should never be called
+				return;
+			} 
+
+		}
+
 		
 		/*
 		 * Build this part out after
