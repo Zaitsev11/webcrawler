@@ -42,6 +42,9 @@ public class Main {
 	//Set the number of Pages to Crawl here:
 	static int numPagesToCrawl = 1;
 	
+	//Initialize the following string
+	static String tasteType;
+	
 	//mySQL database information; don't forget to start the database :)
 	static String url = "jdbc:mysql://localhost:8889/";
 	static String dbName = "database";
@@ -112,83 +115,68 @@ public class Main {
 	}
 
 	private static void getTaste() {
-		// TODO Build out this method
-		/* This method will be updating the database and giving value to different fields depending on the words they use
-		 * I probably want the word to read from a list in a different table on the mySQL database
-		 * The list will consist of 
-		 * 
-		 */
-		
-		/* Implement the following SQL query:
-		 * SELECT bitterness FROM words LIMIT 0,1;
-		 * 
-		 * Make this SQL query run for all 5 columns (bitter,sour,sweet, ect.)
-		 * 
-		 * If there's no result returned in a column, go to the next column
-		 */
-		
-		String tasteType = "bitterness";
-		
-		//Code to get the word for bitterness
-		
 		ArrayList<String> al = new ArrayList<String>();
-		
-		
-		//This code to build an arraylist of all of the words within the bitterness column
-		
-		/*
-		 * The following code will get the first tasteType.  I need to build it out so that it gets the other types as well.
-		 */
-		
-		for (int x = 0; x < 40; x++){
-			try {
-				Class.forName(driver).newInstance();
-				Connection conn = DriverManager.getConnection(url+dbName,userName,password);
-				Statement st = conn.createStatement();
-				ResultSet res = st.executeQuery("SELECT "+tasteType+" FROM words LIMIT "+x+",1");
+		int num = 0;
+
+		for (int intTasteType = 0; intTasteType < 5; intTasteType++){
+			switch(intTasteType){
+				case 0: tasteType = "bitterness";
+						break;
+						
+				case 1: tasteType = "saltiness";
+						break;
+						
+				case 2: tasteType = "sourness";
+						break;
 				
-				while (res.next()) {
-					al.add(res.getString(tasteType));
-				}
-				conn.close();
-			} catch (Exception e) {
-				e.printStackTrace();
+				case 3: tasteType = "sweetness";
+						break;
+						
+				case 4: tasteType = "umami";
+						break;
 			}
-			try{
-				String test = al.get(x);
-				if (test == ""){
-					//I'm using empty strings in the database
-					System.out.println("End of line");
-					return;
+
+			for (int x = 0; x >= 0; x++){
+				try {
+					Class.forName(driver).newInstance();
+					Connection conn = DriverManager.getConnection(url+dbName,userName,password);
+					Statement st = conn.createStatement();
+					ResultSet res = st.executeQuery("SELECT "+tasteType+" FROM words LIMIT "+x+",1");
+					
+					while (res.next()) {
+						al.add(res.getString(tasteType));
+					}
+					conn.close();
+				} catch (Exception e) {
+					e.printStackTrace();
 				}
-				
-				System.out.println(test);
-
-			} catch (IndexOutOfBoundsException e) {
-				//This should never be called
-				return;
-			} 
-
+				try{
+					String test = al.get(num);
+					if (test == ""){
+						//I'm using empty strings in the database
+						num++;
+						break;
+					}
+					try {
+						Class.forName(driver).newInstance();
+						Connection conn = DriverManager.getConnection(url+dbName,userName,password);
+						Statement st = conn.createStatement();
+						int val = st.executeUpdate("UPDATE table1 SET "+tasteType+"="+tasteType+"+1 WHERE firstParagraph LIKE '%"+al.get(num)+"%'");
+						if(val==1)
+						conn.close();
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+					num++;
+	
+				} catch (IndexOutOfBoundsException e) {
+					//This should never be called
+					e.printStackTrace();
+					return;
+				} 
+			}
 		}
-
-		
-		/*
-		 * Build this part out after
-
-		try {
-			Class.forName(driver).newInstance();
-			Connection conn = DriverManager.getConnection(url+dbName,userName,password);
-			Statement st = conn.createStatement();
-			//TODO the issue seems to lie with the following line of code
-			int val = st.executeUpdate("UPDATE table1 SET "+tasteType+"="+tasteType+"+1 WHERE firstParagraph LIKE '%"+word+"%'");
-			if(val==1)
-			conn.close();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		System.out.println("Record Updated Successfully");
-		*/
-		
+		//System.out.println(al.size()+" total words to use");
 	}
 
 	private static void searchDatabase(String searchString) {
