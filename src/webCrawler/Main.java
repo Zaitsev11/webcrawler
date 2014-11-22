@@ -28,7 +28,7 @@ public class Main {
 	private static final int numOfPagesWithParagraph = 3800;
 	
 	//This is a placeholder for the paragraph field in the database
-	private static String firstParagraph = "initialCrawl";
+	private static String firstParagraph = "none";
 	
 	//This is the starting point for the webcrawl
 	static String nextURL = "http://en.wikipedia.org/wiki/List_of_alcoholic_beverages";
@@ -44,6 +44,10 @@ public class Main {
 	
 	//Initialize the following string
 	static String tasteType;
+	
+	//Initialize the following string
+	static String countString;
+
 	
 	//mySQL database information; don't forget to start the database :)
 	static String url = "jdbc:mysql://localhost:8889/";
@@ -301,7 +305,7 @@ public class Main {
 			Statement st = conn.createStatement();
 			try{
 				//TODO test this
-				int val = st.executeUpdate("INSERT into "+ table +" VALUES('"+ theURL +"','"+ theName +"','"+firstParagraph+"','0','0','0','0','0')");
+				int val = st.executeUpdate("INSERT IGNORE into "+ table +" VALUES('"+ theURL +"','"+ theName +"','"+firstParagraph+"','0','0','0','0','0')");
 				if(val==1)
 					conn.close();
 			} catch (SQLException e){
@@ -337,7 +341,7 @@ public class Main {
 			}
 			nextURL = al.get(x);
 			System.out.println(nextURL);
-			firstParagraph = "crawl num "+x; 
+			//firstParagraph = "crawl num "+x; 
 			crawler(nextURL, firstParagraph);
 			pageNumber = x + 1;
 			System.out.println("Page number " + pageNumber + " successfully parsed");
@@ -365,18 +369,44 @@ public class Main {
 	    InputStream is = null;
 	    BufferedReader br;
 	    String line;
-	    for(int x = 0; x < numOfPagesWithParagraph; x++){	        
+	    
+	    try {
+			Class.forName(driver).newInstance();
+			Connection conn = DriverManager.getConnection(url+dbName,userName,password);
+			Statement st = conn.createStatement();
+			ResultSet res = st.executeQuery("SELECT COUNT(*) FROM table1 WHERE firstParagraph='none';");
+			res.next();
+			countString = res.getString("COUNT(*)");
+			conn.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+	        try {
+	        	//Change to 'while', instead of 'if' to get more than the first paragraph
+	            if (is != null) is.close();
+	        } catch (IOException ioe) {
+	        	
+	        }
+	    }
+	    
+	    int count = Integer.parseInt(countString);
+	    
+	    for(int x = 0; x <= count; x++){	        
         	try {
 				Class.forName(driver).newInstance();
 				Connection conn = DriverManager.getConnection(url+dbName,userName,password);
 				Statement st = conn.createStatement();
-				ResultSet res = st.executeQuery("SELECT DISTINCT URL FROM table1 LIMIT "+x+",1");
+				ResultSet res = st.executeQuery("SELECT DISTINCT URL FROM table1 WHERE firstParagraph='none' LIMIT "+x+",1");
 				res.next();
 				nextURL = res.getString("URL");
-				System.out.println("The URL: " + nextURL);
 				conn.close();
 			} catch (Exception e) {
 				e.printStackTrace();
+				//CONFIRMED.  This is where the error for this bug is:
+				/*
+				 * http://stackoverflow.com/questions/23494021/java-sql-sqlexception-illegal-operation-on-empty-result-set-dor-select-stateme
+				 */
+				System.out.println("ERROR IS HERE?!");
 			} finally {
 		        try {
 		        	//Change to 'while', instead of 'if' to get more than the first paragraph
@@ -401,8 +431,8 @@ public class Main {
 		        	if(matcher.find()){
 		        		String firstParagraph = matcher.group(1);
 		        		firstParagraph = removeHTMLFormatting(firstParagraph);
-		        		System.out.println("The first paragraph: " + firstParagraph);
 		        		update(nextURL, firstParagraph);
+		        		System.out.println("Paragraph number: "+x+" added out of: "+count);
 		        		break;
 		        	}
 		        	
@@ -440,8 +470,9 @@ public class Main {
 			if(val==1)
 			conn.close();
 		} catch (Exception e) {
-			e.printStackTrace();
+			//e.printStackTrace();
+			System.out.println("ERROR HERE!!!~~~");
 		}
-		System.out.println("Record Updated Successfully");
+		//System.out.println("Record Updated Successfully");
 	}
 }
