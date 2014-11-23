@@ -24,9 +24,6 @@ public class Main {
 	 * Please read the README for information on this project.
 	 */
 	
-	//How many pages would you like to grab the first paragraph from?
-	private static final int numOfPagesWithParagraph = 3800;
-	
 	//This is a placeholder for the paragraph field in the database
 	private static String firstParagraph = "none";
 	
@@ -40,7 +37,7 @@ public class Main {
 	static long ms = System.currentTimeMillis();
 	
 	//Set the number of Pages to Crawl here:
-	static int numPagesToCrawl = 1;
+	static int numPagesToCrawl = 20;
 	
 	//Initialize the following string
 	static String tasteType;
@@ -92,7 +89,7 @@ public class Main {
 					 */
 					 System.out.println("Enter a string to search:");
 					 
-					 //TODO remember that the input is space delimited.  Needs to be fixed.
+					 //TODO remember that the input is space delimited.  Needs to be fixed. LOW priority, might be removed
 					 String searchString = sc.next();
 					 searchDatabase(searchString);
 			 		 return;
@@ -153,6 +150,7 @@ public class Main {
 					conn.close();
 				} catch (Exception e) {
 					e.printStackTrace();
+					//TODO Consider adding a kill on exception command
 				}
 				try{
 					String test = al.get(num);
@@ -253,7 +251,10 @@ public class Main {
 	        		//The following decodes theName
 	        		theName = decodeHTML(theName);
 	        		
-	        		//TODO If theName contains ".jpg", then push it to table2 and new method insertTable2();
+	        		/*
+	        		 * TODO If theName contains ".jpg", then push it to table2 and new method insertTable2();
+	        		 * This will be used to pair the result with a picture
+	        		 */
 	        		
 	        		if (theName.contains("File")){
 	        			table = "file";
@@ -304,10 +305,15 @@ public class Main {
 			Connection conn = DriverManager.getConnection(url+dbName,userName,password);
 			Statement st = conn.createStatement();
 			try{
-				//TODO test this
-				int val = st.executeUpdate("INSERT IGNORE into "+ table +" VALUES('"+ theURL +"','"+ theName +"','"+firstParagraph+"','0','0','0','0','0')");
-				if(val==1)
-					conn.close();
+				//TODO This is the cause of the issue when attempting to crawl the web:
+				/* The issue does not specifically lie with the "INSERT IGNORE" part of the query
+				 * 
+				 */
+				st.executeUpdate("INSERT IGNORE into "+ table +" VALUES('"+ theURL +"','"+ theName +"','"+firstParagraph+"','0','0','0','0','0')");
+				conn.close();
+				//System.out.println(val);
+				//if(val==1)
+					//conn.close();
 			} catch (SQLException e){
 				
 			}
@@ -402,11 +408,11 @@ public class Main {
 				conn.close();
 			} catch (Exception e) {
 				e.printStackTrace();
-				//CONFIRMED.  This is where the error for this bug is:
+				//CONFIRMED. TODO This is where the error for this bug is:
 				/*
 				 * http://stackoverflow.com/questions/23494021/java-sql-sqlexception-illegal-operation-on-empty-result-set-dor-select-stateme
 				 */
-				System.out.println("ERROR IS HERE?!");
+				System.out.println("ERROR IS HERE!");
 			} finally {
 		        try {
 		        	//Change to 'while', instead of 'if' to get more than the first paragraph
@@ -427,7 +433,6 @@ public class Main {
 			        Pattern pattern = Pattern.compile("<p>(.+?)</p>");
 		        	Matcher matcher = pattern.matcher(line);
 		        	
-		        	//TODO check this code for possible decode/SQL issues.  Reference GIT bug for more info
 		        	if(matcher.find()){
 		        		String firstParagraph = matcher.group(1);
 		        		firstParagraph = removeHTMLFormatting(firstParagraph);
@@ -455,7 +460,7 @@ public class Main {
 	}
 
 	private static String removeHTMLFormatting(String firstParagraph) {
-		firstParagraph = firstParagraph. replaceAll("\\<.*?>","");
+		firstParagraph = firstParagraph.replaceAll("\\<.*?>","");
 		return firstParagraph;
 	}
 
@@ -465,7 +470,7 @@ public class Main {
 			Class.forName(driver).newInstance();
 			Connection conn = DriverManager.getConnection(url+dbName,userName,password);
 			Statement st = conn.createStatement();
-			//TODO the issue seems to lie with the following line of code
+			//TODO the encoding issue seems to lie with the following line of code
 			int val = st.executeUpdate("UPDATE table1 SET firstParagraph='"+firstParagraph+"' WHERE URL='"+nextURL+"'");
 			if(val==1)
 			conn.close();
@@ -473,6 +478,5 @@ public class Main {
 			//e.printStackTrace();
 			System.out.println("ERROR HERE!!!~~~");
 		}
-		//System.out.println("Record Updated Successfully");
 	}
 }
