@@ -37,7 +37,7 @@ public class Main {
 	static long ms = System.currentTimeMillis();
 	
 	//Set the number of Pages to Crawl here:
-	static int numPagesToCrawl = 20;
+	static int numPagesToCrawl = 100;
 	
 	//Initialize the following string
 	static String tasteType;
@@ -100,10 +100,10 @@ public class Main {
 			case 5:  //Testing code
 					 nextURL = "MYURL";
 					 firstParagraph = "shōchū";
-			String theURL = "theURL";
-			String theName = "theName";
-			String table = "table";
-			//update(nextURL, firstParagraph);
+					 String theURL = "theURL";
+					 String theName = "theName";
+					 String table = "table";
+					 //update(nextURL, firstParagraph);
 					 insert(theURL, theName, table, firstParagraph);
 					 return;
 			 
@@ -309,7 +309,9 @@ public class Main {
 				/* The issue does not specifically lie with the "INSERT IGNORE" part of the query
 				 * 
 				 */
-				st.executeUpdate("INSERT IGNORE into "+ table +" VALUES('"+ theURL +"','"+ theName +"','"+firstParagraph+"','0','0','0','0','0')");
+				long time = System.currentTimeMillis();
+				//TODO check if the previous line plays well with the SQL database
+				st.executeUpdate("INSERT IGNORE into "+ table +" VALUES('"+ theURL +"','"+ theName +"','"+firstParagraph+"','0','0','0','0','0',"+time+")");
 				conn.close();
 				//System.out.println(val);
 				//if(val==1)
@@ -336,7 +338,7 @@ public class Main {
 				Class.forName(driver).newInstance();
 				Connection conn = DriverManager.getConnection(url+dbName,userName,password);
 				Statement st = conn.createStatement();
-				ResultSet res = st.executeQuery("SELECT DISTINCT URL FROM table1 LIMIT "+x+",1");
+				ResultSet res = st.executeQuery("SELECT DISTINCT URL FROM table1 ORDER BY ms LIMIT "+x+",1");
 				
 				while (res.next()) {
 					al.add(res.getString("URL"));
@@ -402,7 +404,7 @@ public class Main {
 				Class.forName(driver).newInstance();
 				Connection conn = DriverManager.getConnection(url+dbName,userName,password);
 				Statement st = conn.createStatement();
-				ResultSet res = st.executeQuery("SELECT DISTINCT URL FROM table1 WHERE firstParagraph='none' LIMIT "+x+",1");
+				ResultSet res = st.executeQuery("SELECT DISTINCT URL FROM table1 WHERE firstParagraph='none' ORDER BY ms LIMIT "+x+",1");
 				res.next();
 				nextURL = res.getString("URL");
 				conn.close();
@@ -461,6 +463,8 @@ public class Main {
 
 	private static String removeHTMLFormatting(String firstParagraph) {
 		firstParagraph = firstParagraph.replaceAll("\\<.*?>","");
+		//TODO test the following code,which removes everything between parenthesis
+		firstParagraph = firstParagraph.replaceAll("\\(.*?)","");
 		return firstParagraph;
 	}
 
@@ -472,6 +476,7 @@ public class Main {
 			Statement st = conn.createStatement();
 			//TODO the encoding issue seems to lie with the following line of code
 			int val = st.executeUpdate("UPDATE table1 SET firstParagraph='"+firstParagraph+"' WHERE URL='"+nextURL+"'");
+			//TODO remove this next line in order to prevent this error from ocurring
 			if(val==1)
 			conn.close();
 		} catch (Exception e) {
