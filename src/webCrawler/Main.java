@@ -66,6 +66,7 @@ public class Main {
 		Scanner sc = new Scanner(System.in);
 		int input = sc.nextInt();
 		
+		
 		switch (input) {
 			case 1:  System.out.println("Parsing: " + nextURL);
 					 crawler(nextURL, firstParagraph);
@@ -310,6 +311,7 @@ public class Main {
 				 * 
 				 */
 				long time = System.currentTimeMillis();
+				
 				//TODO check if the previous line plays well with the SQL database
 				st.executeUpdate("INSERT IGNORE into "+ table +" VALUES('"+ theURL +"','"+ theName +"','"+firstParagraph+"','0','0','0','0','0',"+time+")");
 				conn.close();
@@ -423,7 +425,6 @@ public class Main {
 		        	
 		        }
 		    }
-        	
         	//Now that we have theUrl, let's get the paragraph!
 		    try {
 		        url2 = new URL(nextURL);
@@ -444,6 +445,7 @@ public class Main {
 		        	}
 		        	
 		        } catch(Exception e){
+		        	e.printStackTrace();
 		        } 
 		    }
 
@@ -464,7 +466,7 @@ public class Main {
 	private static String removeHTMLFormatting(String firstParagraph) {
 		firstParagraph = firstParagraph.replaceAll("\\<.*?>","");
 		//TODO test the following code,which removes everything between parenthesis
-		firstParagraph = firstParagraph.replaceAll("\\(.*?)","");
+		firstParagraph = firstParagraph.replaceAll("\\(.*?\\)","");
 		return firstParagraph;
 	}
 
