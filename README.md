@@ -16,7 +16,6 @@ A basic webcrawler with a search engine built in
 	 * 
 	 * TLDR; This program is a search engine specifically for alcoholic beverages / food in Wikipedia.
 	 * 
-	 * This will be the backbone of the palit-up.com project.
 	 * 
 	 * Enjoy!
 	 * 
