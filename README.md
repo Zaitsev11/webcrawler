@@ -19,4 +19,7 @@ A basic webcrawler with a search engine built in
 	 * 
 	 * Enjoy!
 	 * 
+	 * Note: This requires the MySQL connector for Java, found here:
+	 * http://dev.mysql.com/downloads/connector/j/
+	 * 
 	 */
